@@ -8,27 +8,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-class ValidateNameTest {
+class ValidateRushOrderInstructionTest {
 
 	// Phạm Trung Hiếu - 20183535
 	
-	private PlaceOrderController placeOrderController;
+	private PlaceRushOrderController placeRushOrderController;
 	@BeforeEach
 	void setUp() throws Exception {
-		placeOrderController = new PlaceOrderController();
+		placeRushOrderController = new PlaceRushOrderController();
 	}
 
 	@ParameterizedTest
 	@CsvSource({
-		"phamtrunghieu, true",
-		"hieu20183535, false",
-		"$#pthieu, false",
+		"day la chi dan giao hang nhanh, true",
+		"chi dan 123 $@, false",
 		", false"
 	})
 	
-	@DisplayName("validate name")
-	void test(String name, boolean expected) {
-		boolean isValid = placeOrderController.validateName(name);
+	@DisplayName("validate rush order instruction")
+	void test(String instruction, boolean expected) {
+		boolean isValid = placeRushOrderController.validateRushOrderInstruction(instruction);
 		assertEquals(expected, isValid);
 	}
 

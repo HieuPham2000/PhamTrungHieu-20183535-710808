@@ -9,6 +9,8 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -36,59 +38,38 @@ public class API {
 	 * Thuoc tinh giup log thong tin ra console
 	 */
 	private static Logger LOGGER = Utils.getLogger(Utils.class.getName());
-
+	
 	/**
-	 * Phuong thuc giup goi cac API GET
+	 * Thiet lap connection toi server
 	 * @param url: duong dan toi server can request
+	 * @param method: phuong thuc goi api
 	 * @param token: doan ma bam can cung cap de xac thuc nguoi dung
-	 * @return response: phan hoi tu server (dang String)
-	 * @throws Exception
+	 * @return connection
+	 * @throws IOException
+	 * @author hieupt - 20183535
 	 */
-	public static String get(String url, String token) throws Exception {
+	private static HttpURLConnection setupConnection(String url, String method, String token) throws IOException {
+		// setup
 		LOGGER.info("Request URL: " + url + "\n");
 		URL line_api_url = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) line_api_url.openConnection();
 		conn.setDoInput(true);
 		conn.setDoOutput(true);
-		conn.setRequestMethod("GET");
+		conn.setRequestMethod(method);
 		conn.setRequestProperty("Content-Type", "application/json");
 		conn.setRequestProperty("Authorization", "Bearer " + token);
-		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		String inputLine;
-		StringBuilder respone = new StringBuilder(); // ising StringBuilder for the sake of memory and performance
-		while ((inputLine = in.readLine()) != null)
-			System.out.println(inputLine);
-		respone.append(inputLine + "\n");
-		in.close();
-		LOGGER.info("Respone Info: " + respone.substring(0, respone.length() - 1).toString());
-		return respone.substring(0, respone.length() - 1).toString();
+		return conn;
 	}
-
-	int var;
-
+	
 	/**
-	 * Phuong thuc giup goi cac API POST (thanh toan...)
-	 * @param url
-	 * @param data
-	 * @return
+	 * Phuong thuc doc du lieu tra ve tu server
+	 * @param conn: connection to server
+	 * @return response: phan hoi tra ve tu server
 	 * @throws IOException
+	 * @author hieupt - 20183535
 	 */
-	public static String post(String url, String data
-//			, String token
-	) throws IOException {
-		allowMethods("PATCH");
-		URL line_api_url = new URL(url);
-		String payload = data;
-		LOGGER.info("Request Info:\nRequest URL: " + url + "\n" + "Payload Data: " + payload + "\n");
-		HttpURLConnection conn = (HttpURLConnection) line_api_url.openConnection();
-		conn.setDoInput(true);
-		conn.setDoOutput(true);
-		conn.setRequestMethod("PATCH");
-		conn.setRequestProperty("Content-Type", "application/json");
-//		conn.setRequestProperty("Authorization", "Bearer " + token);
-		Writer writer = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
-		writer.write(payload);
-		writer.close();
+	private static String readResponse(HttpURLConnection conn) throws IOException {
+		// doc du lieu gui ve tu server
 		BufferedReader in;
 		String inputLine;
 		if (conn.getResponseCode() / 100 == 2) {
@@ -96,14 +77,73 @@ public class API {
 		} else {
 			in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 		}
-		StringBuilder response = new StringBuilder();
+		
+		StringBuilder response = new StringBuilder(); // su dung StringBuilder de toi uu ve mat bo nho
 		while ((inputLine = in.readLine()) != null)
 			response.append(inputLine);
 		in.close();
-		LOGGER.info("Respone Info: " + response.toString());
-		return response.toString();
+		LOGGER.info("Respone Info: " + response.substring(0, response.length() - 1).toString());
+		return response.substring(0, response.length() - 1).toString();
+	}
+	
+
+	/**
+	 * Phuong thuc giup goi cac API GET
+	 * @param url: duong dan toi server can request
+	 * @param token: doan ma bam can cung cap de xac thuc nguoi dung
+	 * @return response: phan hoi tu server (dang String)
+	 * @throws Exception
+	 * @author hieupt - 20183535
+	 */
+	public static String get(String url, String token) throws Exception {
+		// Pham Trung Hieu - 20183535
+		// Phan 1: setup
+		HttpURLConnection conn = setupConnection(url, "GET", token);
+		
+		// Phan 2: doc du lieu tra ve tu server
+		String response = readResponse(conn);
+		
+		return response;
 	}
 
+
+	int var;
+
+	/**
+	 * Phuong thuc giup goi cac API POST (thanh toan...)
+	 * @param url: duong dan toi server can request
+	 * @param token: doan ma bam can cung cap de xac thuc nguoi dung
+	 * @param data: du lieu dua len server de xe ly (dang JSON)
+	 * @return response: phan hoi tu server (dang string)
+	 * @throws IOException
+	 * @author hieupt - 20183535
+	 */
+	public static String post(String url, String data, String token) throws IOException {
+		// Pham Trung Hieu - 20183535
+		// cho phep PATCH protocol
+		allowMethods("PATCH");
+		// Phan 1: setup
+		HttpURLConnection conn = setupConnection(url, "PATCH", token);
+		
+		// Phan 2: gui du lieu
+		Writer writer = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+		writer.write(data);
+		writer.close();
+		
+		// Phan 3: doc du lieu gui ve tu server
+		String response = readResponse(conn);
+		
+		return response;
+	}
+
+	
+	/**
+	 * Phuong thuc cho phep goi cac loai giao thuc API khac nhau
+	 * nhu PATCH, PUT,... (chi hoat dong voi Java 11)
+	 * @deprecated chi hoat dong voi Java <= 11
+	 * @param methods: giao thuc can cho phep (PATCH, PUT,...)
+	 * @author hieupt - 20183535
+	 */
 	private static void allowMethods(String... methods) {
 		try {
 			Field methodsField = HttpURLConnection.class.getDeclaredField("methods");

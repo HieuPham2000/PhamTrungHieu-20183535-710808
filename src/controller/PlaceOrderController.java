@@ -106,8 +106,8 @@ public class PlaceOrderController extends BaseController{
     
     public boolean validateName(String name) {
     	// Pham Trung Hieu - 20183535
-    	// Kiem tra khac null
-    	if(name == null) {
+    	// Kiem tra khac null, khac blank
+    	if(name == null || name.isBlank()) {
     		return false;
     	}
     	
@@ -117,8 +117,8 @@ public class PlaceOrderController extends BaseController{
     
     public boolean validateAddress(String address) {
     	// Pham Trung Hieu - 20183535
-    	// Kiem tra khac null
-    	if(address == null) {
+    	// Kiem tra khac null, khac blank
+    	if(address == null || address.isBlank()) {
     		return false;
     	}
     	

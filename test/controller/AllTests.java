@@ -7,5 +7,5 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ValidatePhoneNumberTest.class, ValidateNameTest.class, ValidateAddressTest.class})
 public class AllTests {
-
+	// Phạm Trung Hiếu - 20183535
 }
