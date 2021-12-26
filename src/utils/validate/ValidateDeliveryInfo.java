@@ -2,6 +2,9 @@ package utils.validate;
 
 public class ValidateDeliveryInfo {
 	public static boolean validatePhoneNumber(String phoneNumber) {
+		if(phoneNumber == null || phoneNumber.isBlank()) {
+    		return false;
+    	}
     	// Pham Trung Hieu - 20183535
     	// Kiem tra do dai 10 chu so
     	if(phoneNumber.length() != 10) {

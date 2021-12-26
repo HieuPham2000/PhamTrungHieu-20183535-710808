@@ -14,7 +14,7 @@ import subsystem.interbank.InterbankSubsystemController;
  * @author PTHIEU 20183535
  *
  */
-public class InterbankSubsystem implements InterbankPayOrderInterface, InterbankRefundInterface {
+public class InterbankSubsystem implements InterbankInterface {
 
 	/**
 	 * Represent the controller of the subsystem
