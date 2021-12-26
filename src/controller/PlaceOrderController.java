@@ -13,6 +13,9 @@ import common.exception.InvalidDeliveryInfoException;
 import entity.invoice.Invoice;
 import entity.order.Order;
 import entity.order.OrderMedia;
+import utils.validate.ValidateDeliveryInfo;
+import utils.shippingfee.ShippingFeeCalculator;
+import utils.shippingfee.impl.ShippingFeeCalculateByAmount;
 import views.screen.popup.PopupScreen;
 
 /**
@@ -25,6 +28,15 @@ public class PlaceOrderController extends BaseController{
      * Just for logging purpose
      */
     private static Logger LOGGER = utils.Utils.getLogger(PlaceOrderController.class.getName());
+    
+    /**
+     * Đối tượng tính phí ship
+     */
+    ShippingFeeCalculator shippingFeeCalculator = new ShippingFeeCalculateByAmount();
+    
+    private final String ADDRESS_INFO = "address";
+    private final String NAME_INFO = "name";
+    private final String PHONE_NUMBER_INFO = "phoneNumber";
 
     /**
      * This method checks the avalibility of product when user click PlaceOrder button
@@ -77,9 +89,14 @@ public class PlaceOrderController extends BaseController{
    * @param info
    * @throws InterruptedException
    * @throws IOException
+   * Modified by PTHIEU 
    */
-    public void validateDeliveryInfo(HashMap<String, String> info) throws InterruptedException, IOException{
+    public boolean validateDeliveryInfo(HashMap<String, String> info) throws InterruptedException, IOException{
+    	String phoneNumber = info.get(PHONE_NUMBER_INFO);
+    	String name = info.get(NAME_INFO);
+    	String address = info.get(ADDRESS_INFO);
     	
+    	return ValidateDeliveryInfo.validateName(name) && ValidateDeliveryInfo.validatePhoneNumber(phoneNumber) && ValidateDeliveryInfo.validateAddress(address);
     }
     
     public boolean validatePhoneNumber(String phoneNumber) {
@@ -133,9 +150,6 @@ public class PlaceOrderController extends BaseController{
      * @return shippingFee
      */
     public int calculateShippingFee(Order order){
-        Random rand = new Random();
-        int fees = (int)( ( (rand.nextFloat()*10)/100 ) * order.getAmount() );
-        LOGGER.info("Order Amount: " + order.getAmount() + " -- Shipping Fees: " + fees);
-        return fees;
+        return shippingFeeCalculator.calculateShippingFee(order);
     }
 }

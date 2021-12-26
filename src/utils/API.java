@@ -9,8 +9,6 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -18,9 +16,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import entity.payment.CreditCard;
-import entity.payment.PaymentTransaction;
 
 /**
  * Class cung cap cac phuong thuc giup gui request len server và nhan du lieu tra ve
@@ -72,18 +67,18 @@ public class API {
 		// doc du lieu gui ve tu server
 		BufferedReader in;
 		String inputLine;
-		if (conn.getResponseCode() / 100 == 2) {
-			in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		} else {
-			in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-		}
-		
+//		if (conn.getResponseCode() / 100 == 2) {
+//			in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//		} else {
+//			in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+//		}
+		in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 		StringBuilder response = new StringBuilder(); // su dung StringBuilder de toi uu ve mat bo nho
 		while ((inputLine = in.readLine()) != null)
 			response.append(inputLine);
 		in.close();
-		LOGGER.info("Respone Info: " + response.substring(0, response.length() - 1).toString());
-		return response.substring(0, response.length() - 1).toString();
+		LOGGER.info("Respone Info: " + response.toString());
+		return response.toString();
 	}
 	
 
